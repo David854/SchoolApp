@@ -1,51 +1,75 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const menuButton = document.getElementById('menuButton');
-  const sideMenu = document.getElementById('sideMenu');
-  const cards = document.querySelectorAll('.card');
-  const pages = document.querySelectorAll('.page');
-  const gridPage = document.getElementById('home');
-  const homeBtn = document.getElementById('homeBtn');
-  const backBtn = document.getElementById('backBtn');
+document.addEventListener("DOMContentLoaded", () => {
+  lucide.createIcons();
 
-  // Toggle side menu visibility
-  function toggleMenu(open) {
-    const show = open ?? !sideMenu.classList.contains('open');
-    sideMenu.classList.toggle('open', show);
-  }
+  const menuBtn = document.getElementById("menu-btn");
+  const sideMenu = document.getElementById("side-menu");
+  const overlay = document.querySelector(".overlay");
+  const pages = document.querySelectorAll(".page");
+  const buttons = document.querySelectorAll(".btn[data-section]");
+  const backBtns = document.querySelectorAll(".back-btn");
+  const homeworkList = document.getElementById("homework-list");
 
-  // Click handlers
-  menuButton.onclick = () => toggleMenu();
-  document.onclick = e => {
-    if (!sideMenu.contains(e.target) && !menuButton.contains(e.target)) {
-      toggleMenu(false);
-    }
+  // Toggle Menu
+  menuBtn.onclick = () => {
+    sideMenu.classList.toggle("show");
+    overlay.classList.toggle("show");
+  };
+  overlay.onclick = () => {
+    sideMenu.classList.remove("show");
+    overlay.classList.remove("show");
   };
 
-  // Card click = open page
-  cards.forEach(c => c.onclick = () => showPage(c.dataset.card));
+  // Open pages
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const section = document.getElementById(btn.dataset.section);
+      if (!section) return;
+      pages.forEach(p => p.classList.remove("active"));
+      section.classList.add("active");
+    });
+  });
 
-  // Navigation buttons
-  homeBtn.onclick = () => showHome();
-  backBtn.onclick = () => showHome();
+  // Back button
+  backBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      pages.forEach(p => p.classList.remove("active"));
+    });
+  });
 
-  // Show a specific page
-  function showPage(id) {
-    pages.forEach(p => p.classList.remove('show'));
-    const page = document.getElementById(id);
-    if (page) {
-      page.classList.add('show');
-      gridPage.classList.remove('show');
-    }
-    toggleMenu(false);
+  // Homework system
+  const sampleHW = [
+    { title: "Math worksheet 5", done: false },
+    { title: "English essay intro", done: true },
+    { title: "Science experiment report", done: false },
+  ];
+
+  function renderHW() {
+    homeworkList.innerHTML = "";
+    sampleHW.forEach((hw, i) => {
+      const li = document.createElement("li");
+      li.className = `homework-item ${hw.done ? "done" : "notdone"}`;
+      li.innerHTML = `
+        <div style="display:flex;align-items:center;">
+          <div class="status"></div>
+          <span>${hw.title}</span>
+        </div>
+        <div class="hw-actions">
+          <button class="done-btn"><i data-lucide="check"></i></button>
+          <button class="not-btn"><i data-lucide="x"></i></button>
+        </div>
+      `;
+      li.querySelector(".done-btn").onclick = () => {
+        hw.done = true;
+        renderHW();
+      };
+      li.querySelector(".not-btn").onclick = () => {
+        hw.done = false;
+        renderHW();
+      };
+      homeworkList.appendChild(li);
+    });
+    lucide.createIcons();
   }
 
-  // Return to home grid
-  function showHome() {
-    pages.forEach(p => p.classList.remove('show'));
-    gridPage.classList.add('show');
-    toggleMenu(false);
-  }
-
-  // Start on home
-  showHome();
+  renderHW();
 });
